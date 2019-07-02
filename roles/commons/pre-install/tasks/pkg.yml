@@ -35,4 +35,4 @@
   apt:
     name: "{{ pkgs }}"
     update_cache: yes
-    state: latest
+    #    state: latest
