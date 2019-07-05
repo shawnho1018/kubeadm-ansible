@@ -2,8 +2,9 @@
 # ansible_user: root
 
 # Kubernetes
-install_version: 1.13.7-00
-kube_version: v1.13.0
+version: 1.13.7
+install_version: "{{ version }}+vmware.1-1"
+kube_version: "v{{ version }}"
 token: b0f7b8.8d1767876297d85c
 
 # 1.8.x feature: --feature-gates SelfHosting=true
