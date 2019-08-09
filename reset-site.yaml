@@ -8,6 +8,11 @@
       shell: "kubeadm reset --force"
       ignore_errors: True
 
+    - name: Remove docker-ce
+      apt:
+        name: docker-ce
+        state: absent
+
     - name: Delete flannel.1 interface
       command: ip link delete flannel.1
       when: network == "flannel"

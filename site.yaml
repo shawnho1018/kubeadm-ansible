@@ -5,6 +5,12 @@
   roles:
     - { role: docker, tags: docker }
 
+- hosts: gpu
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: gpu, tags: gpu }
+
 - hosts: master
   gather_facts: yes
   become: yes

@@ -1,0 +1,7 @@
+---
+- name: Install nvidia-container
+  when: ansible_os_family == "Debian"
+  apt:
+    name: "nvidia-container-toolkit"
+    state: present
+    update_cache: yes
