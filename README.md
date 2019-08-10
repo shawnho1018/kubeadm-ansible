@@ -2,9 +2,7 @@
 
 Build a Kubernetes cluster using Ansible with kubeadm. The goal is easily install a Kubernetes cluster on machines running:
 
-  - Ubuntu 16.04
-  - CentOS 7
-  - Debian 9
+  - Ubuntu 18.04
 
 System requirements:
 
@@ -21,6 +19,9 @@ Add the system information gathered above into a file called `hosts.ini`. For ex
 [node]
 192.16.35.[10:11]
 
+[gpu]
+192.168.0.100
+
 [kube-cluster:children]
 master
 node
@@ -33,6 +34,9 @@ If you're working with ubuntu, add the following properties to each host `ansibl
 
 [node]
 192.16.35.[10:11] ansible_python_interpreter='python3'
+
+[gpu]
+192.168.0.100
 
 [kube-cluster:children]
 master
@@ -79,10 +83,10 @@ Verify cluster is fully running using kubectl:
 
 $ export KUBECONFIG=~/admin.conf
 $ kubectl get node
-NAME      STATUS    AGE       VERSION
-master1   Ready     22m       v1.6.3
-node1     Ready     20m       v1.6.3
-node2     Ready     20m       v1.6.3
+NAME                 STATUS            AGE   VERSION
+master               Ready    master   11h   v1.15.1+vmware.2
+nvidia-dgx-station   Ready    <none>   11h   v1.15.1+vmware.2
+worker               Ready    <none>   11h   v1.15.1+vmware.2
 
 $ kubectl get po -n kube-system
 NAME                                    READY     STATUS    RESTARTS   AGE
