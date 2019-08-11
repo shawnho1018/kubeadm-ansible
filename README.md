@@ -43,7 +43,7 @@ network: flannel
 After going through the setup, run the `site.yaml` playbook:
 
 ```sh
-$ ansible-playbook -i host.ini site.yaml
+$ ansible-playbook -i hosts.ini site.yaml
 PLAY [master] ****************************************************************************************************************************************************************
 
 TASK [Gathering Facts] *******************************************************************************************************************************************************
@@ -99,7 +99,7 @@ etcd-master1                            1/1       Running   0          23m
 Finally, reset all kubeadm installed state using `reset-site.yaml` playbook:
 
 ```sh
-$ ansible-playbook reset-site.yaml
+$ ansible-playbook reset-site.yaml -i hosts.ini
 ```
 
 # Additional features
