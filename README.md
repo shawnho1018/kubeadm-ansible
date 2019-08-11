@@ -14,33 +14,18 @@ System requirements:
 Add the system information gathered above into a file called `hosts.ini`. For example:
 ```
 [master]
-192.16.35.12
+10.66.202.112 ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_ssh_user=root
 
 [node]
-192.16.35.[10:11]
+10.66.202.113 ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_ssh_user=root
 
 [gpu]
-192.168.0.100
+192.168.0.112 ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_ssh_user=root
 
 [kube-cluster:children]
 master
 node
-```
-
-If you're working with ubuntu, add the following properties to each host `ansible_python_interpreter='python3'`:
-```
-[master]
-192.16.35.12 ansible_python_interpreter='python3'
-
-[node]
-192.16.35.[10:11] ansible_python_interpreter='python3'
-
-[gpu]
-192.168.0.100
-
-[kube-cluster:children]
-master
-node
+gpu
 
 ```
 
@@ -58,15 +43,30 @@ network: flannel
 After going through the setup, run the `site.yaml` playbook:
 
 ```sh
-$ ansible-playbook site.yaml
-...
-==> master1: TASK [addon : Create Kubernetes dashboard deployment] **************************
-==> master1: changed: [192.16.35.12 -> 192.16.35.12]
-==> master1:
-==> master1: PLAY RECAP *********************************************************************
-==> master1: 192.16.35.10               : ok=18   changed=14   unreachable=0    failed=0
-==> master1: 192.16.35.11               : ok=18   changed=14   unreachable=0    failed=0
-==> master1: 192.16.35.12               : ok=34   changed=29   unreachable=0    failed=0
+$ ansible-playbook -i host.ini site.yaml
+PLAY [master] ****************************************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************************************
+Saturday 10 August 2019  11:26:37 +0800 (0:00:00.191)       0:03:05.585 *******
+ok: [10.66.202.112]
+
+TASK [Helm role] *************************************************************************************************************************************************************
+Saturday 10 August 2019  11:26:38 +0800 (0:00:00.845)       0:03:06.431 *******
+skipping: [10.66.202.112]
+
+TASK [MetalLB role] **********************************************************************************************************************************************************
+Saturday 10 August 2019  11:26:38 +0800 (0:00:00.046)       0:03:06.477 *******
+skipping: [10.66.202.112]
+
+TASK [Healthcheck role] ******************************************************************************************************************************************************
+Saturday 10 August 2019  11:26:38 +0800 (0:00:00.045)       0:03:06.522 *******
+skipping: [10.66.202.112]
+
+PLAY RECAP *******************************************************************************************************************************************************************
+10.66.202.112              : ok=39   changed=12   unreachable=0    failed=0    skipped=18   rescued=0    ignored=1
+10.66.202.113              : ok=31   changed=7    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0
+192.168.0.112              : ok=33   changed=5    unreachable=0    failed=0    skipped=20   rescued=0    ignored=1
+
 ```
 
 The playbook will download `/etc/kubernetes/admin.conf` file to `$HOME/admin.conf`.
