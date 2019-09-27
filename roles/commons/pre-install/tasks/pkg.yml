@@ -16,15 +16,15 @@
 - name: Add Heptio APT GPG Key
   when: ansible_os_family == "Debian"
   apt_key:
-    url: https://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub
+    data: "{{ lookup('file', '/root/epks_repo_key.pub') }}"
+    #url: https://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub
     state: present
 
 - name: Add Heptio APT repository
   when: ansible_os_family == "Debian"
   apt_repository:
-    repo: deb https://downloads.heptio.com/essential-pks/523a448aa3e9a0ef93ff892dceefee0a/debs stable main
+    repo: deb [arch=amd64] http://10.66.202.105:8080/ stable main
     state: present
-
 
 - name: Add Kubernetes yum repository
   when: ansible_os_family == "RedHat"
