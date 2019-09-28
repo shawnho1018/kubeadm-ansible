@@ -2,7 +2,7 @@
 
 Build a Kubernetes cluster using Ansible with kubeadm on Ubuntu 18.04 machines. The goal is to easily install a Kubernetes cluster on an air-gapped environment. In order to do that, we use aptly service to mirror the workload onto an Ubuntu 18.04 machine (called aptly server in the following description). Aptly service must be ready before applying ansible-playbook.
 # Pre-requisite: 
-The following installation follows this [!topology] (https://github.com/shawnho1018/kubeadm-ansible/blob/master/architecture.png)
+The following installation follows this ![topology] (https://github.com/shawnho1018/kubeadm-ansible/blob/master/architecture.png)
 ## Prepare Aptly Service
 ```
 apt-get install rng-tools aptly
