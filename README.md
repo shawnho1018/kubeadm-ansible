@@ -1,10 +1,42 @@
-# Kubeadm Ansible Playbook
+# Ansible Playbook installation guide for Essential PKS (kubernetes 1.16.0+vmware.1-1)
 
-Build a Kubernetes cluster using Ansible with kubeadm. The goal is easily install a Kubernetes cluster on machines running:
+Build a Kubernetes cluster using Ansible with kubeadm on Ubuntu 18.04 machines. The goal is to easily install a Kubernetes cluster on an air-gapped environment. In order to do that, we use aptly service to mirror the workload onto an Ubuntu 18.04 machine (called aptly server in the following description). Aptly service must be ready before applying ansible-playbook.
+# Pre-requisite: 
+## Prepare Aptly Service
+```
+apt-get install rng-tools aptly
+% check for sufficient entropy
+rngd -r /dev/urandom
+% Import keys from heptio repo and main ubuntu repo. 
+gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys 915493E7001E5CC9
+gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys 3B4FE6ACC0B21F32
 
-  - Ubuntu 18.04
+% Create Aptly Mirror
+aptly mirror create essential-pks https://downloads.heptio.com/essential-pks/523a448aa3e9a0ef93ff892dceefee0a/debs stable main
+DIST=$(grep CODENAME /etc/lsb-release | awk -F "=" '{ print $2 }')
+aptly mirror create -architectures=amd64 -filter='socat' -filter-with-deps $DIST-main http://archive.ubuntu.com/ubuntu/ $DIST main
 
-System requirements:
+% Update Mirror
+aptly mirror update essential-pks
+aptly mirror update $DIST-main
+
+% Create Snapshot from the mirror
+aptly snapshot create essential-pks from mirror essential-pks
+aptly snapshot create $DIST-main-final from mirror $DIST-main
+
+% Publish both snapshots
+aptly publish snapshot essential-pks
+aptly publish snapshot $DIST-main-final
+
+% export gpg key. This key will be used on all kubernetes nodes. We'll use ansible to apply the key to all kubernetes nodes. 
+gpg --export --armor > epks_repo_key.pub
+```  
+
+## Modify Ansible-playbook files
+- Since server with aptly service may have different IP address, this variable, 『essential_apt』 needs to be provided to roles/commons/pre-install/tasks/pkg.yml before running ansible-playbook.
+- gpg file must be named as epks_repo_key.pub and also be stored under /root. 
+
+# System requirements:
 
   - Deployment environment must have Ansible `2.4.0+`
   - Master and nodes must have passwordless SSH access
@@ -83,10 +115,9 @@ Verify cluster is fully running using kubectl:
 
 $ export KUBECONFIG=~/admin.conf
 $ kubectl get node
-NAME                 STATUS            AGE   VERSION
-master               Ready    master   11h   v1.15.1+vmware.2
-nvidia-dgx-station   Ready    <none>   11h   v1.15.1+vmware.2
-worker               Ready    <none>   11h   v1.15.1+vmware.2
+NAME    STATUS   ROLES    AGE   VERSION
+linux   Ready    master   13h   v1.16.0+vmware.1
+
 
 $ kubectl get po -n kube-system
 NAME                                    READY     STATUS    RESTARTS   AGE
