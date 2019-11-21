@@ -1,18 +1,21 @@
 ---
 - name: Install apt-transport-https
   when: ansible_os_family == "Debian"
+  become: true
   apt:
     name: "apt-transport-https"
     state: present
-    update_cache: yes
+    #    update_cache: yes
 
 - name: Add Docker APT GPG key
   when: ansible_os_family == "Debian"
+  become: true
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
 
 - name: Add Docker APT repository
   when: ansible_os_family == "Debian"
+  become: true
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
@@ -20,6 +23,7 @@
 
 - name: Add Docker yum repository
   when: ansible_os_family == "RedHat"
+  become: true
   yum_repository:
     name: Docker
     description: Docker Repository
@@ -31,12 +35,14 @@
 
 - name: Install docker engine (RHEL/CentOS)
   when: ansible_os_family == "RedHat"
+  become: true
   yum:
     name: "docker-engine-{{ docker_version }}.*"
     state: present
 
 - name: Install docker engine (Debian/Ubuntu)
   when: ansible_os_family == "Debian"
+  become: true
   apt:
     update_cache: yes
     name: "docker-ce={{ docker_version }}*"
@@ -44,6 +50,7 @@
 
 - name: Hold docker version
   when: ansible_os_family == "Debian"
+  become: true
   dpkg_selections:
     name: docker-ce
     selection: hold

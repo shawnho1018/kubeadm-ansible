@@ -13,16 +13,23 @@
     state: present
     filename: 'kubernetes'
 
+    # Used for Local APT Repository
+    #- name: Add Heptio APT GPG Key
+    #when: ansible_os_family == "Debian"
+    #apt_key:
+    #data: "{{ lookup('file', '/root/epks_repo_key.pub') }}"
+    #state: present
+
 - name: Add Heptio APT GPG Key
   when: ansible_os_family == "Debian"
   apt_key:
-    data: "{{ lookup('file', '/root/epks_repo_key.pub') }}"
+    url: https://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub
     state: present
 
 - name: Add Heptio APT repository
   when: ansible_os_family == "Debian"
   apt_repository:
-    repo: deb [arch=amd64] {{ essential_apt }} 
+    repo: deb https://downloads.heptio.com/vmware-tanzu-kubernetes-grid/523a448aa3e9a0ef93ff892dceefee0a/debs stable main
     state: present
 
 - name: Add Kubernetes yum repository

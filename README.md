@@ -1,4 +1,4 @@
-# Ansible Playbook installation guide for Essential PKS (kubernetes 1.16.0+vmware.1-1)
+# Ansible Playbook installation guide for Essential PKS (kubernetes 1.16.2+vmware.1-1)
 
 Build a Kubernetes cluster using Ansible with kubeadm on Ubuntu 18.04 machines. The goal is to easily install a Kubernetes cluster on an air-gapped environment. In order to do that, we use aptly service to mirror the workload onto an Ubuntu 18.04 machine (called aptly server in the following description). Aptly service must be ready before applying ansible-playbook.
 # Pre-requisite: 
@@ -65,13 +65,13 @@ gpu
 
 Before continuing, edit `group_vars/all.yml` to your specified configuration.
 
-For example, I choose to run `flannel` instead of calico, and thus:
+For example, I choose to run `Calico` instead of Flannel, and thus:
 
 ```yaml
 # Network implementation('flannel', 'calico')
-network: flannel
+network: calico
 ```
-
+I also upgrade Calico to the latest 3.6.5 and passed the test. 
 **Note:** Depending on your setup, you may need to modify `cni_opts` to an available network interface. By default, `kubeadm-ansible` uses `eth1`. Your default interface may be `eth0`.
 
 After going through the setup, run the `site.yaml` playbook:
