@@ -7,11 +7,30 @@
       shell: "kubeadm reset -f"
       ignore_errors: True
 
-    - name: Remove docker-ce
+    - name: Remove docker-ce (Debian)
+      when: ansible_facts['os_family']|lower == 'debian'
       apt:
-        name: docker-ce
+        name: 
+          - docker-ce
+          - kubelet
         state: absent
         force: yes
+    - name: Remove docker-ce (RedHat)
+      when: ansible_facts['os_family']|lower == 'redhat'
+      yum:
+        name: 
+          - docker-ce
+          - kubelet
+          - kubectl
+        state: absent
+    - name: Remove config (Redhat)
+      when: ansible_facts['os_family']|lower == 'redhat'
+      file: 
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        /etc/sysconfig/kubelet
+        /etc/docker/daemon.json
 
     - name: Delete flannel.1 interface
       command: ip link delete flannel.1

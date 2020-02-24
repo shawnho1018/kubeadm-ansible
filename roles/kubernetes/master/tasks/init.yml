@@ -11,6 +11,7 @@
                  --kubernetes-version {{ kube_version }} \
                  --pod-network-cidr {{ pod_network_cidr }} \
                  --token {{ token }} \
+                 --apiserver-cert-extra-sans {{ master_ip }} \
                  --apiserver-advertise-address {{ master_ip }} \
                  {{ kubeadm_opts }} \
                  {{ init_opts }}

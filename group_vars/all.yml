@@ -2,7 +2,7 @@
 # ansible_user: root
 
 # Kubernetes
-version: 1.16.2
+version: 1.16.6
 install_version: "{{ version }}+vmware.1-1"
 kube_version: "v{{ version }}"
 token: b0f7b8.8d1767876297d85c

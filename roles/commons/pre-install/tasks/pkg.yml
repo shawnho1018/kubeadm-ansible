@@ -35,19 +35,30 @@
 - name: Add Kubernetes yum repository
   when: ansible_os_family == "RedHat"
   yum_repository:
-    name: Kubernetes
-    description: Kubernetes Repository
-    file: kubernetes
-    baseurl: http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+    description: VMware Tanzu Kubernetes Grid 
+    name: tanzu-grid
+    file: tanzu-grid
+    baseurl: "https://downloads.heptio.com/vmware-tanzu-kubernetes-grid/523a448aa3e9a0ef93ff892dceefee0a/rpms" 
     enabled: yes
-    gpgcheck: no
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: "https://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub"
+    exclude: "kube*"
 
 - name: Install kubernetes packages (RHEL/CentOS)
   when: ansible_os_family == "RedHat"
   yum:
-    name: "{{ pkgs }}"
+    name:
+      - "kubelet-{{ installed_version }}"
+      - "kubeadm-{{ installed_version }}"
+      - "kubectl-{{ installed_version }}"
+    disable_excludes: "tanzu-grid"
     update_cache: yes
     state: latest
+
+- name: Change Kubelet cgroup engine to systemd (RHEL/CentOS)
+  when: ansible_os_family == "RedHat"
+  shell: echo "KUBELET_EXTRA_ARGS=--cgroup-driver=systemd" > /etc/sysconfig/kubelet
 
 - name: Install kubernetes packages (Debian/Ubuntu)
   when: ansible_os_family == "Debian"
