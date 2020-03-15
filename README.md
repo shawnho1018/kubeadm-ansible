@@ -36,5 +36,20 @@ cluster_id: "syspks"
   roles:
     - {role: csi, tags: csi}
 ```
+* After kubernetes cluster with CPI/CSI is created, we need to configure a storage policy in vCenter and then run the following yaml file to configure the StorageClass. 
+```yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: standard
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+parameters:
+  storagepolicyname: "YOUR-STORAGE-POLICY-NAME"
+  fstype: ext4
+```
+
+## If problems occurs...
 * For any issue, you can use ansible-playbook -i hosts.ini reset-site.yaml to remove all installed items. 
 
