@@ -24,6 +24,12 @@
   roles:
     - { role: kubernetes/node, tags: node }
 
+- hosts: master
+  gather_facts: yes
+  become: yes
+  roles:
+    - {role: csi, tags: csi}
+
 - hosts: gpu
   gather_facts: yes
   become: yes

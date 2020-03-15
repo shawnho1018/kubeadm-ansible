@@ -1,0 +1,20 @@
+---
+- hosts: master
+  gather_facts: yes
+  become: yes
+  tasks:
+  - name: get all nodes
+    vars:
+      kubeadmin_config: "/home/shawnho/.kube/config"
+    shell: kubectl --kubeconfig={{ kubeadmin_config }} get nodes | awk 'NR>2 {print $1}'
+    register: k8s_nodes
+
+  - name: test
+    shell: "cat /home/shawnho/.kube/config"
+    register: host_data
+
+  - name: show all the hosts matching the pattern, i.e. all but the group www
+    debug:
+      msg: "{{ item }}"
+    with_items:
+      "{{ k8s_nodes.stdout_lines }}"

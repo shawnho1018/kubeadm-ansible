@@ -1,0 +1,29 @@
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: InitConfiguration
+bootstrapTokens:
+  - groups:
+    - system:bootstrappers:kubeadm:default-node-token
+    token: {{ token }}
+    ttl: 0s
+    usages:
+    - signing
+    - authentication
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: external
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+useHyperKubeImage: false
+kubernetesVersion: {{ kube_version }}
+networking:
+  serviceSubnet: {{ service_cidr }}
+  podSubnet: {{ pod_network_cidr }}
+etcd:
+  local:
+    imageRepository: "k8s.gcr.io"
+    imageTag: "3.3.10"
+dns:
+  type: "CoreDNS"
+  imageRepository: "k8s.gcr.io"
+  imageTag: "1.5.0"

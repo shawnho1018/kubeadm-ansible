@@ -4,13 +4,20 @@
   shell: "kubeadm reset --force"
   register: reset_cluster
 
+- name: Generate kubeadm config
+  template:
+    src: "kubeadminit.j2"
+    dest: "/etc/kubernetes/kubeadminit.yaml"
+
+
 - name: Init Kubernetes cluster
   when: reset_cluster is succeeded
   shell: |
-    kubeadm init --service-cidr {{ service_cidr }} \
-                 --kubernetes-version {{ kube_version }} \
-                 --pod-network-cidr {{ pod_network_cidr }} \
-                 --token {{ token }} \
+    kubeadm init --config /etc/kubernetes/kubeadminit.yaml \
+    #--service-cidr {{ service_cidr }} \
+    #            --kubernetes-version {{ kube_version }} \
+    #            --pod-network-cidr {{ pod_network_cidr }} \
+                 #                 --token {{ token }} \
                  --apiserver-cert-extra-sans {{ master_ip }} \
                  --apiserver-advertise-address {{ master_ip }} \
                  {{ kubeadm_opts }} \
@@ -31,6 +38,16 @@
     group: "{{ ansible_user | default(ansible_user_id) }}"
     mode: 0755
     remote_src: true
+
+- name: Produce Discovery.yaml
+  shell: |
+    kubectl --kubeconfig={{ kubeadmin_config }} -n kube-public get configmap cluster-info -o jsonpath='{.data.kubeconfig}' > /tmp/discovery.yaml
+
+- name: Fetch Discovery.yaml to Ansible server
+  fetch:
+    src: /tmp/discovery.yaml
+    dest: "{{ discovery_yaml_folder }}"
+    flat: yes
 
 - name: Deploy kubernetes dashboard into cluster
   when: init_cluster is succeeded and enable_dashboard

@@ -1,0 +1,63 @@
+---
+# Deploy according to https://docs.vmware.com/en/VMware-vSphere/6.7/vsphere-673-cloud-native-storage.pdf
+# tasks file for csi
+- name: clone vsphere.conf for CPI
+  template:
+    src: "vsphere.conf"
+    dest: "/etc/kubernetes"
+- name: clone cpi-secrets yaml for CPI
+  template:
+    src: "cpi-secret.yaml"
+    dest: "/etc/kubernetes"
+
+- name: create CPI configmap
+  shell: |
+    kubectl --kubeconfig={{ kubeadmin_config }} apply -f /etc/kubernetes/cpi-secret.yaml
+    kubectl --kubeconfig={{ kubeadmin_config }} create configmap cloud-config --from-file=/etc/kubernetes/vsphere.conf --namespace=kube-system
+
+#
+- name: remove vsphere.conf
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/kubernetes/vsphere.conf
+    - /etc/kubernetes/cpi-secret.yaml
+
+- name: get all nodes
+  shell: kubectl --kubeconfig={{ kubeadmin_config }} get nodes | awk 'NR>2 {print $1}'
+  register: k8s_nodes
+
+- name: taint all worker nodes
+  shell: |
+    kubectl --kubeconfig={{ kubeadmin_config }} taint node "{{ item }}" node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule 
+  with_items:
+    "{{ k8s_nodes.stdout_lines }}"
+  # remove later
+  ignore_errors: yes 
+
+- name: deploy vsphere cloud controller manager
+  shell: |
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-roles.yaml
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-role-bindings.yaml 
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://github.com/kubernetes/cloud-provider-vsphere/raw/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml
+
+
+# Provide vCenter configuration for CSI
+- name: prepare csi-vsphere.conf for CSI
+  template:
+    src: "csi-vsphere.conf"
+    dest: "/etc/kubernetes"
+
+- name: deploy secrets for CSI
+  shell: |
+    kubectl --kubeconfig={{ kubeadmin_config }} create secret generic vsphere-config-secret --from-file=/etc/kubernetes/csi-vsphere.conf --namespace=kube-system
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/1.14/rbac/vsphere-csi-controller-rbac.yaml
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/1.14/deploy/vsphere-csi-controller-ss.yaml
+    kubectl apply --kubeconfig={{ kubeadmin_config }} -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/1.14/deploy/vsphere-csi-node-ds.yaml
+
+# Delete csi-vsphere.conf
+- name: remove csi-vsphere.conf
+  file:
+    path: /etc/kubernetes/csi-vsphere.conf
+    state: absent

@@ -1,0 +1,12 @@
+---
+- hosts: master
+  gather_facts: yes
+  become: yes
+  tasks:
+  - name: Write File
+    template:
+      src: test.j2
+      dest: /tmp/config.json
+      owner: shawnho
+      group: wheel
+      mode: '0600'

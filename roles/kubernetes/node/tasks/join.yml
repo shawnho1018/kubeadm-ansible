@@ -4,6 +4,16 @@
   shell: "kubeadm reset --force"
   register: reset_cluster
 
+- name: Copy Discovery File
+  template:
+    src: "discovery.yaml"
+    dest: "/etc/kubernetes/discovery.yaml"
+
+- name: Generate KubeadmInit Config
+  template:
+    src: "kubeadminit.j2"
+    dest: "/etc/kubernetes/kubeadminitworker.yaml"
+
 - name: Join to Kubernetes cluster
   when: reset_cluster is succeeded
   shell: |

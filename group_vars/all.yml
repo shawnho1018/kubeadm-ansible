@@ -6,6 +6,7 @@ version: 1.16.6
 install_version: "{{ version }}+vmware.1-1"
 kube_version: "v{{ version }}"
 token: b0f7b8.8d1767876297d85c
+discovery_yaml_folder: "{{ playbook_dir }}/roles/kubernetes/node/templates/"
 # apt repository for essential pks
 # essential_apt: "http://10.66.202.105:8080/ stable main"
 # 1.8.x feature: --feature-gates SelfHosting=true
@@ -49,3 +50,10 @@ additional_features:
 # temporary directory used by additional features
 tmp_dir: /tmp/kubeadm-ansible-files
 
+# CPI/CSI Installation
+# CPI config
+vsphere_ip: vc.syspks.com
+datacenter_name: "DC25"
+vcenter_user: "shawn@syspks.sso"
+vcenter_pass: "VMware1!"
+cluster_id: "syspks"
