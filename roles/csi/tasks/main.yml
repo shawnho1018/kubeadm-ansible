@@ -1,6 +1,5 @@
 ---
-# Deploy according to https://docs.vmware.com/en/VMware-vSphere/6.7/vsphere-673-cloud-native-storage.pdf
-# tasks file for csi
+# This CSI Role implementation can be referred from: https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html
 - name: clone vsphere.conf for CPI
   template:
     src: "vsphere.conf"
@@ -33,8 +32,6 @@
     kubectl --kubeconfig={{ kubeadmin_config }} taint node "{{ item }}" node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule 
   with_items:
     "{{ k8s_nodes.stdout_lines }}"
-  # remove later
-  ignore_errors: yes 
 
 - name: deploy vsphere cloud controller manager
   shell: |
