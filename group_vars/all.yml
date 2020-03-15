@@ -52,6 +52,7 @@ tmp_dir: /tmp/kubeadm-ansible-files
 
 # CPI/CSI Installation
 # CPI config
+# No "" for vsphere_ip. 
 vsphere_ip: vc.syspks.com
 datacenter_name: "DC25"
 vcenter_user: "shawn@syspks.sso"
